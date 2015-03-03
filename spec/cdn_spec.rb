@@ -15,29 +15,21 @@ shared_examples "an url builder" do |method_name|
   end
 end
 
-describe Cdn77::CDN do
-  before do
-    Cdn77.configure do |config|
-      config.login = "ivan@examle.com"
-      config.password = "secret"
-    end
-  end
-
-  let (:cdn) { Cdn77.cdn }
-  let (:url) { "https://client.cdn77.com/api/v2.0/account/details" }
-  let (:url_with_credentials) { "https://client.cdn77.com/api/v2.0/account/details?login=ivan@examle.com&passwd=secret" }
+shared_examples "a request sender" do |method, url|
   let (:successful_response_body) do
     { 
       :status => "ok", 
       :description => "Request was successful." 
     }
   end
+  
   let (:wrong_credentials_response_body) do
     { 
       :status => "error", 
       :description => "Authentication failed. Please, login again or contact our support." 
     }
   end
+  
   let (:wrong_parameters_response_body) do
     {
       :status => "error", 
@@ -49,6 +41,53 @@ describe Cdn77::CDN do
     }
   end
 
+  it "should raise MethodCallError when response code is not 200 OK" do
+    stub_request(method, url).to_return(:status => 500, :body => successful_response_body.to_json)
+    expect{ cdn.send(method, "account", "details") }.to raise_error(Cdn77::MethodCallError)
+  end
+
+  it "should raise MethodCallError when response body is empty" do
+    stub_request(method, url).to_return(:status => 500, :body => '')
+    expect{ cdn.send(method, "account", "details") }.to raise_error(Cdn77::MethodCallError)
+  end
+
+  it "should raise MethodCallError when response status is not ok" do
+    stub_request(method, url).to_return(:status => 200, :body => wrong_parameters_response_body.to_json)
+    expect{ cdn.send(method, "account", "details") }.to raise_error(Cdn77::MethodCallError)
+  end
+
+  it "should raise MethodCallError when wrong creditinals reported" do
+    stub_request(method, url).to_return(:status => 200, :body => wrong_credentials_response_body.to_json)
+    expect{ cdn.send(method, "account", "details") }.to raise_error(Cdn77::MethodCallError, wrong_credentials_response_body[:description])
+  end
+
+  it "should return response body as a hash if no block given" do
+    stub_request(method, url).to_return(:status => 200, :body => successful_response_body.to_json)
+    expect(cdn.send(method, "account", "details")).to eq(successful_response_body)
+  end
+
+  it "should pass response body as a hash into given block" do
+    stub_request(method, url).to_return(:status => 200, :body => successful_response_body.to_json)
+    expect{ |block| cdn.send(method, "account", "details", &block) }.to yield_with_args(successful_response_body)
+  end
+
+  it "should send request with login and password in parameters" do
+    stub_request(method, url).to_return(:status => 200, :body => successful_response_body.to_json)
+    cdn.send(method, "account", "details")
+    expect(WebMock).to have_requested(method, url)
+  end
+end
+
+describe Cdn77::CDN do
+  before do
+    Cdn77.configure do |config|
+      config.login = "ivan@examle.com"
+      config.password = "secret"
+    end
+  end
+
+  let (:cdn) { Cdn77.cdn }
+  
   describe "#configuration" do
     it "should return global configuration" do
       expect(Cdn77::configuration.login).to eq("ivan@examle.com")
@@ -72,53 +111,25 @@ describe Cdn77::CDN do
     it_behaves_like "an url builder", :url
 
     it "should return correct url with scope and method" do
-      expect(cdn.url("account", "details")).to eq(url)
+      expect(cdn.url("account", "details")).to eq("https://client.cdn77.com/api/v2.0/account/details")
     end
 
     it "should add given params to url" do
-      expect(cdn.url("account", "details", :test => "test")).to eq(url + "?test=test")
+      expect(cdn.url("account", "details", :test => "test")).to eq("https://client.cdn77.com/api/v2.0/account/details?test=test")
     end
+  end
+
+  describe "#post" do
+    it { is_expected.to respond_to(:post) }
+
+    it_behaves_like "an url builder", :post
+    it_behaves_like "a request sender", :post, "http://client.cdn77.com:443/api/v2.0/account/details"
   end
 
   describe "#get" do
     it { is_expected.to respond_to(:get) }
 
     it_behaves_like "an url builder", :get
-
-    it "should raise MethodCallError when response code is not 200 OK" do
-      stub_request(:get, url_with_credentials).to_return(:status => 500, :body => successful_response_body.to_json)
-      expect{ cdn.get("account", "details") }.to raise_error(Cdn77::MethodCallError)
-    end
-
-    it "should raise MethodCallError when response body is empty" do
-      stub_request(:get, url_with_credentials).to_return(:status => 500, :body => '')
-      expect{ cdn.get("account", "details") }.to raise_error(Cdn77::MethodCallError)
-    end
-
-    it "should raise MethodCallError when response status is not ok" do
-      stub_request(:get, url_with_credentials).to_return(:status => 200, :body => wrong_parameters_response_body.to_json)
-      expect{ cdn.get("account", "details") }.to raise_error(Cdn77::MethodCallError)
-    end
-
-    it "should raise MethodCallError when wrong creditinals reported" do
-      stub_request(:get, url_with_credentials).to_return(:status => 200, :body => wrong_credentials_response_body.to_json)
-      expect{ cdn.get("account", "details") }.to raise_error(Cdn77::MethodCallError, wrong_credentials_response_body[:description])
-    end
-
-    it "should return response body as a hash if no block given" do
-      stub_request(:get, url_with_credentials).to_return(:status => 200, :body => successful_response_body.to_json)
-      expect(cdn.get("account", "details")).to eq(successful_response_body)
-    end
-
-    it "should pass response body as a hash into given block" do
-      stub_request(:get, url_with_credentials).to_return(:status => 200, :body => successful_response_body.to_json)
-      expect{ |block| cdn.get("account", "details", &block) }.to yield_with_args(successful_response_body)
-    end
-
-    it "should send get request with login and password" do
-      stub_request(:get, url_with_credentials).to_return(:status => 200, :body => successful_response_body.to_json)
-      cdn.get("account", "details")
-      expect(WebMock).to have_requested(:get, url_with_credentials)
-    end
+    it_behaves_like "a request sender", :get, "https://client.cdn77.com/api/v2.0/account/details?login=ivan@examle.com&passwd=secret"
   end
 end
