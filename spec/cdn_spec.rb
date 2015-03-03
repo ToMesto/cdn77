@@ -1,17 +1,17 @@
 require "spec_helper"
 
-shared_examples "an url builder" do
+shared_examples "an url builder" do |method_name|
   it "should raise ArgumentError when scope is nil" do
-     expect{ cdn.url(nil, "details") }.to raise_error(ArgumentError, "Scope could not be empty")
+     expect{ cdn.send(method_name, nil, "details") }.to raise_error(ArgumentError, "Scope could not be empty")
   end
 
   it "should raise ArgumentError when method is nil" do
-    expect{ cdn.url("account", nil) }.to raise_error(ArgumentError, "Method could not be empty")
+    expect{ cdn.send(method_name, "account", nil) }.to raise_error(ArgumentError, "Method could not be empty")
   end
 
   it "should raise ArgumentError when configuration in not specified" do
     allow(Cdn77).to receive(:configuration).and_return(nil)
-    expect{ cdn.url("account", "details") }.to raise_error(ArgumentError, "Configuration endpoint was not specified")
+    expect{ cdn.send(method_name, "account", "details") }.to raise_error(ArgumentError, "Configuration endpoint was not specified")
   end
 end
 
@@ -69,7 +69,7 @@ describe Cdn77::CDN do
   describe "#url" do
     it { is_expected.to respond_to(:url) }
     
-    it_behaves_like "an url builder"
+    it_behaves_like "an url builder", :url
 
     it "should return correct url with scope and method" do
       expect(cdn.url("account", "details")).to eq(url)
@@ -83,7 +83,7 @@ describe Cdn77::CDN do
   describe "#get" do
     it { is_expected.to respond_to(:get) }
 
-    it_behaves_like "an url builder"
+    it_behaves_like "an url builder", :get
 
     it "should raise MethodCallError when response code is not 200 OK" do
       stub_request(:get, url_with_credentials).to_return(:status => 500, :body => successful_response_body.to_json)
