@@ -40,6 +40,7 @@ module Cdn77
     def get(scope, method, params = {})
       raise ArgumentError, "Scope could not be empty" if scope.nil? || scope.empty?
       raise ArgumentError, "Method could not be empty" if method.nil? || method.empty?
+      raise ArgumentError, "Configuration endpoint was not specified" if configuration.nil? || configuration.endpoint.nil? || configuration.endpoint.empty? 
       params ||= {}
       params[:login] ||= login
       params[:passwd] ||= password
