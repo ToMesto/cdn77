@@ -25,7 +25,7 @@ describe Cdn77::CDN do
 
   let (:cdn) { Cdn77.cdn }
   let (:url) { "https://client.cdn77.com/api/v2.0/account/details" }
-  let (:url_with_credentials) { "https://client.cdn77.com/api/v2.0/account/details?login=ivan@examle.com&password=secret" }
+  let (:url_with_credentials) { "https://client.cdn77.com/api/v2.0/account/details?login=ivan@examle.com&passwd=secret" }
   let (:successful_response_body) do
     { 
       :status => "ok", 

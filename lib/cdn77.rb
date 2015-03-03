@@ -34,7 +34,7 @@ module Cdn77
       raise ArgumentError, "Method could not be empty" if method.nil? || method.empty?
       params ||= {}
       params[:login] ||= configuration.login
-      params[:password] ||= configuration.password
+      params[:passwd] ||= configuration.password
       uri = URI(url(scope, method, params))
       http = Net::HTTP.new(uri.host,uri.port)
       http.use_ssl = true
