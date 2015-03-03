@@ -38,17 +38,24 @@ module Cdn77
       }
     end
 
-    def get(scope, method, params = {})
-      raise ArgumentError, "Scope could not be empty" if scope.nil? || scope.empty?
-      raise ArgumentError, "Method could not be empty" if method.nil? || method.empty?
-      raise ArgumentError, "Configuration endpoint was not specified" if configuration.nil? || configuration.endpoint.nil? || configuration.endpoint.empty? 
-      params ||= {}
-      params[:login] ||= login
-      params[:passwd] ||= password
-      uri = URI(url(scope, method, params))
+    def get(scope, method, params = {}, &block)
+      raise_if_invalid(scope, method)
+      uri = URI(url(scope, method, with_creditinals(params)))
       http = Net::HTTP.new(uri.host,uri.port)
       http.use_ssl = true
-      response = http.get(uri.request_uri, headers)
+      handle_response(http.get(uri.request_uri, headers), &block)
+    end
+
+    def url(scope, method, params = {})
+      raise_if_invalid(scope, method)
+      url = configuration.endpoint + "/#{scope}/#{method}"
+      url += "?#{URI.encode_www_form(params)}" if params && params.any?
+      url
+    end
+
+    private
+
+    def handle_response(response)
       raise MethodCallError, response.body unless response.is_a?(Net::HTTPSuccess)
       body = response.body
       raise MethodCallError, 'Response could not be empty' if body.nil? || body.empty?
@@ -62,13 +69,17 @@ module Cdn77
       end
     end
 
-    def url(scope, method, params = {})
+    def with_creditinals(params = {})
+      params ||= {}
+      params[:login] ||= login
+      params[:passwd] ||= password
+      params
+    end
+
+    def raise_if_invalid(scope, method)
       raise ArgumentError, "Scope could not be empty" if scope.nil? || scope.empty?
       raise ArgumentError, "Method could not be empty" if method.nil? || method.empty?
       raise ArgumentError, "Configuration endpoint was not specified" if configuration.nil? || configuration.endpoint.nil? || configuration.endpoint.empty? 
-      url = configuration.endpoint + "/#{scope}/#{method}"
-      url += "?#{URI.encode_www_form(params)}" if params && params.any?
-      url
     end
   end
 
