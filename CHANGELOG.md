@@ -1,0 +1,1 @@
+Please check [v0.0.1](https://github.com/ToMesto/cdn77/tree/v1.0.0) for previous changes.
