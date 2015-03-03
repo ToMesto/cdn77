@@ -21,7 +21,7 @@ bundle install
 Or install it yourself as:
 
 ```bash
-gem install xxx
+gem install cdn77
 ```
 And require in irb:
 
