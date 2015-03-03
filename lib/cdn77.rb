@@ -22,6 +22,14 @@ module Cdn77
       @configuration || Cdn77.configuration
     end
 
+    def login
+      configuration.login
+    end
+
+    def password
+      configuration.password
+    end
+
     def headers
       {
         "Accept" => "application/json",
@@ -33,8 +41,8 @@ module Cdn77
       raise ArgumentError, "Scope could not be empty" if scope.nil? || scope.empty?
       raise ArgumentError, "Method could not be empty" if method.nil? || method.empty?
       params ||= {}
-      params[:login] ||= configuration.login
-      params[:passwd] ||= configuration.password
+      params[:login] ||= login
+      params[:passwd] ||= password
       uri = URI(url(scope, method, params))
       http = Net::HTTP.new(uri.host,uri.port)
       http.use_ssl = true
