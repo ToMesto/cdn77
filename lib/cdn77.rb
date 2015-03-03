@@ -1,4 +1,5 @@
 require "cdn77/version"
+require "net/http"
 require "json"
 
 module Cdn77
