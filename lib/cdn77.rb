@@ -38,6 +38,14 @@ module Cdn77
       }
     end
 
+    def post(scope, method, params = {}, &block)
+      raise_if_invalid(scope, method)
+      uri = URI(url(scope, method))
+      http = Net::HTTP.new(uri.host,uri.port)
+      params = URI.encode_www_form(with_creditinals(params))
+      handle_response(http.post(uri.request_uri, params, headers), &block)
+    end
+
     def get(scope, method, params = {}, &block)
       raise_if_invalid(scope, method)
       uri = URI(url(scope, method, with_creditinals(params)))
