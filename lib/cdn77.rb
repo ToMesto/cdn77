@@ -71,6 +71,7 @@ module Cdn77
 
     def with_creditinals(params = {})
       params ||= {}
+      params[:passwd] = params.delete(:password) if params[:password] && !params[:passwd]
       params[:login] ||= login
       params[:passwd] ||= password
       params
