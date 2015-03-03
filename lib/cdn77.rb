@@ -1,5 +1,7 @@
 require "cdn77/version"
+require "uri"
 require "net/http"
+require "net/https"
 require "json"
 
 module Cdn77
@@ -41,6 +43,7 @@ module Cdn77
       raise_if_invalid(scope, method)
       uri = URI(url(scope, method))
       http = Net::HTTP.new(uri.host,uri.port)
+      http.use_ssl = true
       params = URI.encode_www_form(with_creditinals(params))
       handle_response(http.post(uri.request_uri, params, headers), &block)
     end
@@ -65,7 +68,7 @@ module Cdn77
     def handle_response(response)
       raise MethodCallError, response.body unless response.is_a?(Net::HTTPSuccess)
       body = response.body
-      raise MethodCallError, 'Response could not be empty' if body.nil? || body.empty?
+      raise MethodCallError, "Response could not be empty" if body.nil? || body.empty?
       json = JSON.parse(body, :symbolize_names => true)
       if json[:status] == "ok"
         block_given? ? yield(json) : json

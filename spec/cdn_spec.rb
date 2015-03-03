@@ -123,7 +123,7 @@ describe Cdn77::CDN do
     it { is_expected.to respond_to(:post) }
 
     it_behaves_like "an url builder", :post
-    it_behaves_like "a request sender", :post, "http://client.cdn77.com:443/api/v2.0/account/details"
+    it_behaves_like "a request sender", :post, "https://client.cdn77.com/api/v2.0/account/details"
   end
 
   describe "#get" do
