@@ -13,7 +13,7 @@ gem 'cdn77'
 And then create configuration file in `config/initializers`:
 
 ```ruby
-CDN77.configure do |config|
+Cdn77.configure do |config|
   config.login = 'someone'
   config.password = 'secret'
 end
