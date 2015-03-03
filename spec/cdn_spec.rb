@@ -49,6 +49,23 @@ describe Cdn77::CDN do
     }
   end
 
+  describe "#configuration" do
+    it "should return global configuration" do
+      expect(Cdn77::configuration.login).to eq("ivan@examle.com")
+      expect(Cdn77::configuration.password).to eq("secret")
+    end
+  end
+
+  describe "#cdn" do
+    it "should use specific configuration if it was provided" do
+      config = Cdn77::Configuration.new(:login => "vasya@example.com", :password => "secretsecret")
+      cdn = Cdn77.cdn(config)
+      expect(cdn.configuration).to eq(config)
+      expect(cdn.login).to eq("vasya@example.com")
+      expect(cdn.password).to eq("secretsecret")
+    end
+  end
+
   describe "#url" do
     it { is_expected.to respond_to(:url) }
     
