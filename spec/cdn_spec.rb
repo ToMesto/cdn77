@@ -16,31 +16,6 @@ shared_examples "an url builder" do |method_name|
 end
 
 shared_examples "a request sender" do |method, url|
-  let (:successful_response_body) do
-    { 
-      :status => "ok", 
-      :description => "Request was successful." 
-    }
-  end
-  
-  let (:wrong_credentials_response_body) do
-    { 
-      :status => "error", 
-      :description => "Authentication failed. Please, login again or contact our support." 
-    }
-  end
-  
-  let (:wrong_parameters_response_body) do
-    {
-      :status => "error", 
-      :description => "Request was not successful.", 
-      :errors => {
-        :email => "email is required.", 
-        :password => "password is required."
-      }
-    }
-  end
-
   it "should raise MethodCallError when response code is not 200 OK" do
     stub_request(method, url).to_return(:status => 500, :body => successful_response_body.to_json)
     expect{ cdn.send(method, "account", "details") }.to raise_error(Cdn77::MethodCallError)
@@ -87,6 +62,32 @@ describe Cdn77::CDN do
   end
 
   let (:cdn) { Cdn77.cdn }
+
+  let (:successful_response_body) do
+    { 
+      :status => "ok", 
+      :description => "Request was successful." 
+    }
+  end
+  
+  let (:wrong_credentials_response_body) do
+    { 
+      :status => "error", 
+      :description => "Authentication failed. Please, login again or contact our support." 
+    }
+  end
+  
+  let (:wrong_parameters_response_body) do
+    {
+      :status => "error", 
+      :description => "Request was not successful.", 
+      :errors => {
+        :email => "email is required.", 
+        :password => "password is required."
+      }
+    }
+  end
+
   
   describe "#configuration" do
     it "should return global configuration" do
@@ -124,6 +125,14 @@ describe Cdn77::CDN do
 
     it_behaves_like "an url builder", :post
     it_behaves_like "a request sender", :post, "https://client.cdn77.com/api/v2.0/account/details"
+
+    it "should encode array parameters correctly" do
+      stub_request(:post, "https://client.cdn77.com/api/v2.0/data/purge").
+        with(:body => "cdn_id=12345&url%5B%5D=public%2Fimages%2F1.png&url%5B%5D=public%2Fimages%2F2.png&login=ivan%40examle.com&passwd=secret").
+        to_return(:status => 200, :body => successful_response_body.to_json)
+      
+      expect(cdn.post("data", "purge", :cdn_id => "12345", :url => ["public/images/1.png", "public/images/2.png"])).to eq(successful_response_body)
+    end
   end
 
   describe "#get" do
