@@ -40,7 +40,7 @@ cdn.get("account", "details")
 # {:status => "ok", :description => "Request was successful.", :account => ...}
 ```
 
-If you want to setup configuration only once you should take a look on `Cdn77.configure`. For example, it is a good idea to create initializer with following code in Rails:
+If you want to setup configuration only once you should take a look on `Cdn77.configure`. For example, it is a good idea to create rails initializer with following code:
 
 ```ruby
 # config/initializers/cdn77.rb
