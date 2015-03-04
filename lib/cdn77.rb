@@ -81,10 +81,18 @@ module Cdn77
 
     def with_creditinals(params = {})
       params ||= {}
-      params[:passwd] = params.delete(:password) if params[:password] && !params[:passwd]
-      params[:login] ||= login
-      params[:passwd] ||= password
-      params
+      result = {}
+      params.each do |k, v|
+        if v.is_a?(Array)
+          result["#{k.to_s}[]"] = v
+        else
+          result[k.to_s] = v
+        end
+      end
+      result["login"] ||= login
+      result["passwd"] ||= result.delete("password") if result["password"]
+      result["passwd"] ||= password
+      result
     end
 
     def raise_if_invalid(scope, method)
