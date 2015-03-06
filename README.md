@@ -1,6 +1,7 @@
 # cdn77
 
 [![Gem Version](https://badge.fury.io/rb/cdn77.svg)](http://badge.fury.io/rb/cdn77)
+[![Build Status](https://travis-ci.org/ToMesto/cdn77.svg)](https://travis-ci.org/ToMesto/cdn77)
 
 Wrapper for CDN77 API that allows you to do a wide range of commands and tasks from an external script or server.
 
