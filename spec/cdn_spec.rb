@@ -112,11 +112,11 @@ describe Cdn77::CDN do
     it_behaves_like "an url builder", :url
 
     it "should return correct url with scope and method" do
-      expect(cdn.url("account", "details")).to eq("https://client.cdn77.com/api/v2.0/account/details")
+      expect(cdn.url("account", "details")).to eq("https://api.cdn77.com/v2.0/account/details")
     end
 
     it "should add given params to url" do
-      expect(cdn.url("account", "details", :test => "test")).to eq("https://client.cdn77.com/api/v2.0/account/details?test=test")
+      expect(cdn.url("account", "details", :test => "test")).to eq("https://api.cdn77.com/v2.0/account/details?test=test")
     end
   end
 
@@ -124,10 +124,10 @@ describe Cdn77::CDN do
     it { is_expected.to respond_to(:post) }
 
     it_behaves_like "an url builder", :post
-    it_behaves_like "a request sender", :post, "https://client.cdn77.com/api/v2.0/account/details"
+    it_behaves_like "a request sender", :post, "https://api.cdn77.com/v2.0/account/details"
 
     it "should encode array parameters correctly" do
-      stub_request(:post, "https://client.cdn77.com/api/v2.0/data/purge").
+      stub_request(:post, "https://api.cdn77.com/v2.0/data/purge").
         with(:body => "cdn_id=12345&url%5B%5D=public%2Fimages%2F1.png&url%5B%5D=public%2Fimages%2F2.png&login=ivan%40examle.com&passwd=secret").
         to_return(:status => 200, :body => successful_response_body.to_json)
       
@@ -139,6 +139,6 @@ describe Cdn77::CDN do
     it { is_expected.to respond_to(:get) }
 
     it_behaves_like "an url builder", :get
-    it_behaves_like "a request sender", :get, "https://client.cdn77.com/api/v2.0/account/details?login=ivan@examle.com&passwd=secret"
+    it_behaves_like "a request sender", :get, "https://api.cdn77.com/v2.0/account/details?login=ivan@examle.com&passwd=secret"
   end
 end

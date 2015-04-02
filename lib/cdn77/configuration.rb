@@ -1,6 +1,6 @@
 module Cdn77
   class Configuration
-    DEFAULT_ENDPOINT = "https://client.cdn77.com/api/v2.0"
+    DEFAULT_ENDPOINT = "https://api.cdn77.com/v2.0"
 
     attr_accessor :login
     attr_accessor :password
